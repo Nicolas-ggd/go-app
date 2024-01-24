@@ -16,6 +16,7 @@ func main() {
 	a := &app.Application{
 		Websocket: websocket.NewWebsocket(),
 	}
+
 	go a.Websocket.Run()
 
 	srv := http.Server{
