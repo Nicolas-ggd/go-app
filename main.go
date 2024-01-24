@@ -13,14 +13,14 @@ func main() {
 
 	flag.Parse()
 
-	apply := &app.Application{
+	a := &app.Application{
 		Websocket: websocket.NewWebsocket(),
 	}
-
-	go apply.Websocket.Run()
+	go a.Websocket.Run()
 
 	srv := http.Server{
-		Addr: *addr,
+		Addr:    *addr,
+		Handler: a.Routes(),
 	}
 
 	log.Printf("Server starting on %s", *addr)
