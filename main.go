@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"websocket/cmd/api/websocket"
 	"websocket/cmd/app"
+	"websocket/internal/db"
 )
 
 func main() {
@@ -13,9 +14,12 @@ func main() {
 
 	flag.Parse()
 
+	db.DBConnection()
+
 	a := &app.Application{
 		Websocket: websocket.NewWebsocket(),
 	}
+
 	go a.Websocket.Run()
 
 	srv := http.Server{
