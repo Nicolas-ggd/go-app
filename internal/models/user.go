@@ -13,8 +13,6 @@ type UserModelInterface interface {
 	InsertUser(user *UserSignUp) (*User, error)
 }
 
-type UserModel struct{}
-
 type User struct {
 	ID          uint64         `json:"id" gorm:"primaryKey"`
 	Name        string         `json:"name"`
@@ -31,7 +29,7 @@ type UserSignUp struct {
 	Password string `json:"password"`
 }
 
-func (us *UserModel) InsertUser(user *UserSignUp) (*User, error) {
+func (us *User) InsertUser(user *UserSignUp) (*User, error) {
 	hash, err := HashPassword(user.Password)
 	if err != nil {
 		log.Printf("Error generating password hash: %v", err)

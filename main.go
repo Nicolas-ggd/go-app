@@ -35,7 +35,7 @@ func main() {
 		}
 	}()
 
-	handler := api.NewHandler(&models.UserModel{})
+	handler := api.NewHandler(&models.User{})
 	a := app.NewApplication(websocket.NewWebsocket(), handler)
 
 	go a.Websocket.Run()
