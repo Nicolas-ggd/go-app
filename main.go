@@ -2,11 +2,15 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
+	"sync"
+	"websocket/cmd/api"
 	"websocket/cmd/api/websocket"
 	"websocket/cmd/app"
 	"websocket/internal/db"
+	"websocket/internal/models"
 )
 
 func main() {
@@ -16,9 +20,24 @@ func main() {
 
 	db.DBConnection()
 
-	a := &app.Application{
-		Websocket: websocket.NewWebsocket(),
-	}
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+
+		err := db.DB.AutoMigrate(
+			&models.User{},
+			&models.Token{},
+		)
+
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+	}()
+
+	handler := api.NewHandler(&models.User{}, &models.Token{})
+	a := app.NewApplication(websocket.NewWebsocket(), handler)
 
 	go a.Websocket.Run()
 
