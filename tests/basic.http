@@ -38,7 +38,7 @@ Content-Type: application/json
 Authorization: Bearer {{local_token}}
 
 {
-  "message": "monster bro",
+  "message": "monster",
   "sender_id": 5,
   "receiver_id": 1
 }
