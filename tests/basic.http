@@ -4,11 +4,8 @@ Accept: application/json
 Content-Type: application/json
 
 {
-  "email": "max.95@gmail.com",
-  "password": "lothbrook11",
-  "name": "yamato",
-  "phone_number": "+995558669978"
-
+  "email": "mach@gmail.com",
+  "password": "lothbrook11"
 }
 
 
@@ -19,7 +16,7 @@ Accept: application/json
 Content-Type: application/json
 
 {
-  "email": "max.95@gmail.com",
+  "email": "mach@gmail.com",
   "password": "lothbrook11"
 }
 
@@ -31,3 +28,17 @@ Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{local_token}}
 
+
+
+
+### Create Chat
+POST {{local_host}}/v1/chat/create-message
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{local_token}}
+
+{
+  "message": "monster bro",
+  "sender_id": 5,
+  "receiver_id": 1
+}

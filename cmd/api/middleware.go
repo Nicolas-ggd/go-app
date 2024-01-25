@@ -1,6 +1,10 @@
 package api
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
+	"net/http"
+)
 
 func (h *Handler) CORSOptions() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -11,6 +15,47 @@ func (h *Handler) CORSOptions() gin.HandlerFunc {
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
+}
+
+func (h *Handler) ValidateJWTToken() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		jwtToken, err := h.extractBearerToken(c.GetHeader("Authorization"))
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		token, err := h.ValidateJWT(jwtToken)
+		if err != nil || !token.Valid {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			return
+		}
+
+		_, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Unable to parse claims"})
+			return
+		}
+
+		userId, err := h.ParseJWTClaims(c.GetHeader("Authorization"))
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+			return
+		}
+
+		exists, err := h.TokenService.CheckTokenExist(userId)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+			return
+		}
+
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Token not found"})
 			return
 		}
 
