@@ -9,6 +9,12 @@ import (
 	"websocket/internal/db"
 )
 
+type UserModelInterface interface {
+	InsertUser(user *UserSignUp) (*User, error)
+}
+
+type UserModel struct{}
+
 type User struct {
 	ID          uint64         `json:"id" gorm:"primaryKey"`
 	Name        string         `json:"name"`
@@ -20,19 +26,27 @@ type User struct {
 	DeletedAt   gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 }
 
-func InsertUser(user *User) (*User, error) {
+type UserSignUp struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func (us *UserModel) InsertUser(user *UserSignUp) (*User, error) {
 	hash, err := HashPassword(user.Password)
 	if err != nil {
 		log.Printf("Error generating password hash: %v", err)
 		return nil, fmt.Errorf("failed to generate password hash: %v", err)
 	}
 
-	user.Password = hash
+	u := User{
+		Email:    user.Email,
+		Password: hash,
+	}
 
-	err = db.DB.Create(&user).Error
+	err = db.DB.Create(&u).Error
 	if err != nil {
 		return nil, fmt.Errorf("fialed to insert user in databse")
 	}
 
-	return user, nil
+	return &u, nil
 }

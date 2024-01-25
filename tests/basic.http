@@ -1,0 +1,12 @@
+### User SignUp
+POST {{local_host}}/v1/auth/signup
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "ggdnicolas@gmail.com",
+  "password": "lothbrook11",
+  "name": "yamato",
+  "phone_number": "+995558669978"
+
+}

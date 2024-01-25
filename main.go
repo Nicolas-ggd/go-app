@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"sync"
+	"websocket/cmd/api"
 	"websocket/cmd/api/websocket"
 	"websocket/cmd/app"
 	"websocket/internal/db"
@@ -34,9 +35,8 @@ func main() {
 		}
 	}()
 
-	a := &app.Application{
-		Websocket: websocket.NewWebsocket(),
-	}
+	handler := api.NewHandler(&models.UserModel{})
+	a := app.NewApplication(websocket.NewWebsocket(), handler)
 
 	go a.Websocket.Run()
 
