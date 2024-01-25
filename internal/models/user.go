@@ -52,7 +52,7 @@ func (us *User) InsertUser(user *AuthUser) (*User, error) {
 }
 
 func (us *User) GetByEmail(email string) (*User, error) {
-	err := db.DB.Scopes(EmailScope(email)).First(&us).Error
+	err := db.DB.Preload("Token").Scopes(EmailScope(email)).First(&us).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to find user with email: %s", email)
 	}
