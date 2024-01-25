@@ -1,43 +1,14 @@
 basePath: /v1
 definitions:
-  gorm.DeletedAt:
-    properties:
-      time:
-        type: string
-      valid:
-        description: Valid is true if Time is not NULL
-        type: boolean
-    type: object
   models.ErrorResponse:
     properties:
       error:
         type: string
     type: object
-  models.Token:
-    properties:
-      hash:
-        items:
-          type: integer
-        type: array
-      id:
-        type: integer
-      type:
-        $ref: '#/definitions/models.Type'
-    type: object
-  models.Type:
-    enum:
-    - auth
-    - validation
-    type: string
-    x-enum-varnames:
-    - Auth
-    - Validation
   models.User:
     properties:
       created_at:
         type: string
-      deleted_at:
-        $ref: '#/definitions/gorm.DeletedAt'
       email:
         type: string
       id:
@@ -46,12 +17,6 @@ definitions:
         type: string
       phone_number:
         $ref: '#/definitions/sql.NullString'
-      updated_at:
-        type: string
-      user_token:
-        items:
-          $ref: '#/definitions/models.Token'
-        type: array
     type: object
   sql.NullString:
     properties:
@@ -61,7 +26,7 @@ definitions:
         description: Valid is true if String is not NULL
         type: boolean
     type: object
-host: 167.99.246.163:8000
+host: 167.99.246.163:7000
 info:
   contact:
     email: support@swagger.io
@@ -102,7 +67,7 @@ paths:
       summary: User Sign out
       tags:
       - User Sign out with token
-  /auth/signup:
+  /auth/signin:
     post:
       consumes:
       - application/json
@@ -140,4 +105,42 @@ paths:
       summary: Sign In user generating jwt token
       tags:
       - User Authentication
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: register user
+      parameters:
+      - description: Email
+        in: path
+        name: email
+        required: true
+        type: string
+      - description: Password
+        in: path
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/models.User'
+        "401":
+          description: Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "422":
+          description: Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Sign up user generating jwt token
+      tags:
+      - User Registration
 swagger: "2.0"

@@ -5,10 +5,13 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"websocket/cmd/api/websocket"
+	_ "websocket/docs"
 )
 
 func (a *Application) Routes() *gin.Engine {
 	router := gin.Default()
+
+	router.Use(a.Handler.CORSOptions())
 
 	v1 := router.Group("/v1")
 

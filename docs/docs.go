@@ -65,7 +65,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/signup": {
+        "/auth/signin": {
             "post": {
                 "description": "authenticate user",
                 "consumes": [
@@ -121,21 +121,66 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/auth/signup": {
+            "post": {
+                "description": "register user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Registration"
+                ],
+                "summary": "Sign up user generating jwt token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Email",
+                        "name": "email",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Password",
+                        "name": "password",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "401": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "gorm.DeletedAt": {
-            "type": "object",
-            "properties": {
-                "time": {
-                    "type": "string"
-                },
-                "valid": {
-                    "description": "Valid is true if Time is not NULL",
-                    "type": "boolean"
-                }
-            }
-        },
         "models.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -144,42 +189,11 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Token": {
-            "type": "object",
-            "properties": {
-                "hash": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "type": {
-                    "$ref": "#/definitions/models.Type"
-                }
-            }
-        },
-        "models.Type": {
-            "type": "string",
-            "enum": [
-                "auth",
-                "validation"
-            ],
-            "x-enum-varnames": [
-                "Auth",
-                "Validation"
-            ]
-        },
         "models.User": {
             "type": "object",
             "properties": {
                 "created_at": {
                     "type": "string"
-                },
-                "deleted_at": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
                 },
                 "email": {
                     "type": "string"
@@ -192,15 +206,6 @@ const docTemplate = `{
                 },
                 "phone_number": {
                     "$ref": "#/definitions/sql.NullString"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_token": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Token"
-                    }
                 }
             }
         },
@@ -222,7 +227,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "167.99.246.163:8000",
+	Host:             "167.99.246.163:7000",
 	BasePath:         "/v1",
 	Schemes:          []string{},
 	Title:            "Swagger Example API",

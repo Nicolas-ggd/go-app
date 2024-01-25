@@ -47,7 +47,7 @@ func (h *Handler) InsertUserHandler(c *gin.Context) {
 // @Failure 401 {object} models.ErrorResponse "Error"
 // @Failure 404 {object} models.ErrorResponse "Not Found"
 // @Failure 422 {object} models.ErrorResponse "Error"
-// @Router /auth/signup [post]
+// @Router /auth/signin [post]
 func (h *Handler) UserAuthenticationHandler(c *gin.Context) {
 	var userAuth models.AuthUser
 
