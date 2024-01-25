@@ -44,6 +44,7 @@ func main() {
 		err := db.DB.AutoMigrate(
 			&models.User{},
 			&models.Token{},
+			&models.Chat{},
 		)
 
 		if err != nil {
@@ -51,8 +52,7 @@ func main() {
 		}
 	}()
 
-	handler := api.NewHandler(&models.User{}, &models.Token{})
-	a := app.NewApplication(websocket.NewWebsocket(), handler)
+	a := app.NewApplication(websocket.NewWebsocket(), api.NewHandler())
 
 	go a.Websocket.Run()
 
