@@ -1,0 +1,143 @@
+basePath: /v1
+definitions:
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  models.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  models.Token:
+    properties:
+      hash:
+        items:
+          type: integer
+        type: array
+      id:
+        type: integer
+      type:
+        $ref: '#/definitions/models.Type'
+    type: object
+  models.Type:
+    enum:
+    - auth
+    - validation
+    type: string
+    x-enum-varnames:
+    - Auth
+    - Validation
+  models.User:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        $ref: '#/definitions/gorm.DeletedAt'
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      phone_number:
+        $ref: '#/definitions/sql.NullString'
+      updated_at:
+        type: string
+      user_token:
+        items:
+          $ref: '#/definitions/models.Token'
+        type: array
+    type: object
+  sql.NullString:
+    properties:
+      string:
+        type: string
+      valid:
+        description: Valid is true if String is not NULL
+        type: boolean
+    type: object
+host: 167.99.246.163:8000
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server Petstore server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: User Sign out
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "401":
+          description: Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "422":
+          description: Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: User Sign out
+      tags:
+      - User Sign out with token
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: authenticate user
+      parameters:
+      - description: Email
+        in: path
+        name: email
+        required: true
+        type: string
+      - description: Password
+        in: path
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/models.User'
+        "401":
+          description: Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "422":
+          description: Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Sign In user generating jwt token
+      tags:
+      - User Authentication
+swagger: "2.0"

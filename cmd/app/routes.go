@@ -2,6 +2,8 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"websocket/cmd/api/websocket"
 )
 
@@ -18,6 +20,9 @@ func (a *Application) Routes() *gin.Engine {
 	}
 
 	v1.GET("/ws", websocket.ServeWs(a.Websocket))
+
+	url := ginSwagger.URL("http://localhost:7000/swagger/doc.json")
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler, url))
 
 	return router
 }

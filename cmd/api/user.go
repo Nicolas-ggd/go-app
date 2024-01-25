@@ -6,6 +6,18 @@ import (
 	"websocket/internal/models"
 )
 
+// @Tags   User Registration
+// @Summary Sign up user generating jwt token
+// @Description register user
+// @Accept  json
+// @Produce  json
+// @Param   email     path    string     true        "Email"
+// @Param   password     path    string     true        "Password"
+// @Success 200 {object} models.User	"ok"
+// @Failure 401 {object} models.ErrorResponse "Error"
+// @Failure 404 {object} models.ErrorResponse "Not Found"
+// @Failure 422 {object} models.ErrorResponse "Error"
+// @Router /auth/signup [post]
 func (h *Handler) InsertUserHandler(c *gin.Context) {
 	var userAuth models.AuthUser
 
@@ -24,6 +36,18 @@ func (h *Handler) InsertUserHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": &user})
 }
 
+// @Tags   User Authentication
+// @Summary Sign In user generating jwt token
+// @Description authenticate user
+// @Accept  json
+// @Produce  json
+// @Param   email     path    string     true        "Email"
+// @Param   password     path    string     true        "Password"
+// @Success 200 {object} models.User	"ok"
+// @Failure 401 {object} models.ErrorResponse "Error"
+// @Failure 404 {object} models.ErrorResponse "Not Found"
+// @Failure 422 {object} models.ErrorResponse "Error"
+// @Router /auth/signup [post]
 func (h *Handler) UserAuthenticationHandler(c *gin.Context) {
 	var userAuth models.AuthUser
 
@@ -77,6 +101,16 @@ func (h *Handler) UserAuthenticationHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"access_token": token})
 }
 
+// @Tags   User Sign out with token
+// @Summary User Sign out
+// @Description User Sign out
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} string	"ok"
+// @Failure 401 {object} models.ErrorResponse "Error"
+// @Failure 404 {object} models.ErrorResponse "Not Found"
+// @Failure 422 {object} models.ErrorResponse "Error"
+// @Router /auth/logout [post]
 func (h *Handler) UserLogout(c *gin.Context) {
 	userId, err := h.ParseJWTClaims(c.GetHeader("Authorization"))
 	if err != nil {
