@@ -1,5 +1,22 @@
 basePath: /v1
 definitions:
+  models.Chat:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      message:
+        type: string
+      receiver_id:
+        type: integer
+      sender_id:
+        type: integer
+    required:
+    - message
+    - receiver_id
+    - sender_id
+    type: object
   models.ErrorResponse:
     properties:
       error:
@@ -143,4 +160,47 @@ paths:
       summary: Sign up user generating jwt token
       tags:
       - User Registration
+  /chat/message:
+    post:
+      consumes:
+      - application/json
+      description: Insert Message
+      parameters:
+      - description: Message
+        in: path
+        name: message
+        required: true
+        type: string
+      - description: ReceiverID
+        in: path
+        name: receiver_id
+        required: true
+        type: string
+      - description: SenderID
+        in: path
+        name: sender_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/models.Chat'
+        "401":
+          description: Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "422":
+          description: Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Insert Message
+      tags:
+      - Insert Message
 swagger: "2.0"

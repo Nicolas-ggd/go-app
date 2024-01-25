@@ -25,7 +25,7 @@ func (a *Application) Routes() *gin.Engine {
 	chatRoutes := v1.Group("/chat")
 	{
 		chatRoutes.Use(a.Handler.ValidateJWTToken())
-		chatRoutes.POST("/create-message", a.Handler.InsertMessageHandler)
+		chatRoutes.POST("/message", a.Handler.InsertMessageHandler)
 	}
 
 	v1.GET("/ws", websocket.ServeWs(a.Websocket))
