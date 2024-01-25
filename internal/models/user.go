@@ -10,7 +10,8 @@ import (
 )
 
 type UserModelInterface interface {
-	InsertUser(user *UserSignUp) (*User, error)
+	InsertUser(user *AuthUser) (*User, error)
+	GetByEmail(email string) (*User, error)
 }
 
 type User struct {
@@ -22,14 +23,15 @@ type User struct {
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `json:"deleted_at" gorm:"index"`
+	Token       []*Token       `json:"user_token" gorm:"foreignKey:UserID"`
 }
 
-type UserSignUp struct {
+type AuthUser struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-func (us *User) InsertUser(user *UserSignUp) (*User, error) {
+func (us *User) InsertUser(user *AuthUser) (*User, error) {
 	hash, err := HashPassword(user.Password)
 	if err != nil {
 		log.Printf("Error generating password hash: %v", err)
@@ -47,4 +49,13 @@ func (us *User) InsertUser(user *UserSignUp) (*User, error) {
 	}
 
 	return &u, nil
+}
+
+func (us *User) GetByEmail(email string) (*User, error) {
+	err := db.DB.Scopes(EmailScope(email)).First(&us).Error
+	if err != nil {
+		return nil, fmt.Errorf("failed to find user with email: %s", email)
+	}
+
+	return us, nil
 }

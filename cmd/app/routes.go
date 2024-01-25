@@ -13,6 +13,8 @@ func (a *Application) Routes() *gin.Engine {
 	authRoutes := v1.Group("/auth")
 	{
 		authRoutes.POST("/signup", a.Handler.InsertUserHandler)
+		authRoutes.POST("/signin", a.Handler.UserAuthenticationHandler)
+		authRoutes.POST("/logout", a.Handler.UserLogout)
 	}
 
 	v1.GET("/ws", websocket.ServeWs(a.Websocket))

@@ -28,6 +28,7 @@ func main() {
 
 		err := db.DB.AutoMigrate(
 			&models.User{},
+			&models.Token{},
 		)
 
 		if err != nil {
@@ -35,7 +36,7 @@ func main() {
 		}
 	}()
 
-	handler := api.NewHandler(&models.User{})
+	handler := api.NewHandler(&models.User{}, &models.Token{})
 	a := app.NewApplication(websocket.NewWebsocket(), handler)
 
 	go a.Websocket.Run()
