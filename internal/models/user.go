@@ -21,9 +21,9 @@ type User struct {
 	Password    string         `json:"-"`
 	PhoneNumber sql.NullString `json:"phone_number"`
 	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `json:"deleted_at" gorm:"index"`
-	Token       []*Token       `json:"user_token" gorm:"foreignKey:UserID"`
+	UpdatedAt   time.Time      `json:"-"`
+	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
+	Token       []*Token       `json:"-" gorm:"foreignKey:UserID"`
 }
 
 type AuthUser struct {
