@@ -1,0 +1,33 @@
+### User SignUp
+POST {{local_host}}/v1/auth/signup
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "max.95@gmail.com",
+  "password": "lothbrook11",
+  "name": "yamato",
+  "phone_number": "+995558669978"
+
+}
+
+
+
+### User SignIn
+POST {{local_host}}/v1/auth/signin
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "max.95@gmail.com",
+  "password": "lothbrook11"
+}
+
+
+
+### User Logout
+POST {{local_host}}/v1/auth/logout
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{local_token}}
+
