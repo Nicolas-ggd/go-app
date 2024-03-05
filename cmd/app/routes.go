@@ -22,12 +22,6 @@ func (a *Application) Routes() *gin.Engine {
 		authRoutes.POST("/logout", a.Handler.UserLogout)
 	}
 
-	chatRoutes := v1.Group("/chat")
-	{
-		chatRoutes.Use(a.Handler.ValidateJWTToken())
-		chatRoutes.POST("/message", a.Handler.InsertMessageHandler)
-	}
-
 	v1.GET("/ws", websocket.ServeWs(a.Websocket))
 
 	url := ginSwagger.URL("http://localhost:7000/swagger/doc.json")

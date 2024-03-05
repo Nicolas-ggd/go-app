@@ -80,7 +80,6 @@ func main() {
 		err := db.DB.AutoMigrate(
 			&models.User{},
 			&models.Token{},
-			&models.Chat{},
 		)
 
 		if err != nil {
