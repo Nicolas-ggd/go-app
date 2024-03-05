@@ -12,6 +12,7 @@ import (
 type UserModelInterface interface {
 	InsertUser(user *AuthUser) (*User, error)
 	GetByEmail(email string) (*User, error)
+	CheckUserIsExist(id uint64) (bool, error)
 }
 
 type User struct {
@@ -58,4 +59,14 @@ func (us *User) GetByEmail(email string) (*User, error) {
 	}
 
 	return us, nil
+}
+
+func (us *User) CheckUserIsExist(id uint64) (bool, error) {
+	var count int64
+
+	if err := db.DB.Model(&User{}).Scopes(IdScope(id)).Count(&count).Error; err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
 }

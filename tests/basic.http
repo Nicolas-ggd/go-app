@@ -4,11 +4,8 @@ Accept: application/json
 Content-Type: application/json
 
 {
-  "email": "max.95@gmail.com",
-  "password": "lothbrook11",
-  "name": "yamato",
-  "phone_number": "+995558669978"
-
+  "email": "mach@gmail.com",
+  "password": "lothbrook11"
 }
 
 
@@ -19,7 +16,7 @@ Accept: application/json
 Content-Type: application/json
 
 {
-  "email": "max.95@gmail.com",
+  "email": "mach@gmail.com",
   "password": "lothbrook11"
 }
 
@@ -31,3 +28,26 @@ Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{local_token}}
 
+
+
+
+### Create Chat
+POST {{local_host}}/v1/chat/message
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{local_token}}
+
+{
+  "message": "monster",
+  "sender_id": 5,
+  "receiver_id": 1
+}
+
+
+
+### Get Random API
+GET https://andruxnet-random-famous-quotes.p.rapidapi.com/?count=10&cat=famous
+Accept: application/json
+Content-Type: application/json
+X-RapidAPI-Key: 27a2e0ebeemsh5df4f3f8a5fb5dbp1f7057jsna26300dfaebb
+X-RapidAPI-Host: andruxnet-random-famous-quotes.p.rapidapi.com

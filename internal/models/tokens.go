@@ -19,6 +19,7 @@ type TokenModelInterface interface {
 	CreateJWT(UserID uint64) (string, error)
 	InsertToken(token *Token) error
 	DeleteToken(userID uint64) error
+	CheckTokenExist(id uint64) (bool, error)
 }
 
 type Token struct {
@@ -75,4 +76,14 @@ func (t *Token) DeleteToken(userId uint64) error {
 	}
 
 	return nil
+}
+
+func (t *Token) CheckTokenExist(id uint64) (bool, error) {
+	var count int64
+
+	if err := db.DB.Model(&Token{}).Scopes(UserIdScope(id)).Count(&count).Error; err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
 }
