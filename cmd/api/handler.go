@@ -1,21 +1,15 @@
 package api
 
 import (
+	"log/slog"
 	"websocket/cmd/api/websocket"
-	"websocket/internal/models"
 )
 
-type Handler struct {
-	UserService  models.UserModelInterface
-	TokenService models.TokenModelInterface
-	ChatService  models.ChatModelInterface
-	Websocket    *websocket.Websocket
+type Application struct {
+	Websocket *websocket.Websocket
+	Logger    *slog.Logger
 }
 
-func NewHandler() *Handler {
-	return &Handler{
-		UserService:  &models.User{},
-		TokenService: &models.Token{},
-		ChatService:  &models.Chat{},
-	}
+type Handler[T interface{}] struct {
+	repository T
 }

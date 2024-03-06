@@ -5,42 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"sync"
 	"websocket/cmd/api"
 	"websocket/cmd/api/websocket"
-	"websocket/cmd/app"
 	"websocket/internal/db"
 	"websocket/internal/models"
 )
-
-// Server represents a server instance with its configuration.
-type Server struct {
-	config *Config // Configuration for the server.
-}
-
-// NewServer creates a new Server instance with the provided configuration.
-func NewServer(config *Config) (*Server, error) {
-	// Validate configuration or implement error handling if necessary
-	return &Server{config: config}, nil
-}
-
-// Config holds configuration options for the server.
-type Config struct {
-	ListenerAddr string // Address on which the server listens for connections.
-}
-
-// WithListenerAddr creates a copy of the Config with the updated ListenerAddr.
-func (c *Config) WithListenerAddr(addr string) *Config {
-	// Consider cloning the Config to avoid mutating the original
-	return &Config{ListenerAddr: addr}
-}
-
-// NewConfig creates a new Config instance with default values.
-func NewConfig() *Config {
-	return &Config{
-		ListenerAddr: ":7000", // Default listener address.
-	}
-}
 
 // @title Swagger Example API
 // @version 1.0
@@ -69,31 +38,21 @@ func main() {
 
 	flag.Parse()
 
-	db.DBConnection()
+	database, err := db.ConnectionDB()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(database, "<-- database")
+	_ = models.NewDBWrapper(database)
 
-	var wg sync.WaitGroup
-	wg.Add(1)
+	WebSocket := websocket.NewWebsocket()
 
-	go func() {
-		defer wg.Done()
-
-		err := db.DB.AutoMigrate(
-			&models.User{},
-			&models.Token{},
-		)
-
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-	}()
-
-	a := app.NewApplication(websocket.NewWebsocket(), api.NewHandler())
-
-	go a.Websocket.Run()
+	// run websocket
+	go WebSocket.Run()
 
 	srv := http.Server{
 		Addr:    server.config.ListenerAddr,
-		Handler: a.Routes(),
+		Handler: api.Routes(),
 	}
 
 	log.Printf("Server starting on %s", server.config.ListenerAddr)

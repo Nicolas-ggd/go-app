@@ -1,15 +1,13 @@
 package db
 
 import (
+	"database/sql"
 	"fmt"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	_ "github.com/lib/pq"
 	"os"
 )
 
-var DB *gorm.DB
-
-func DBConnection() {
+func ConnectionDB() (*sql.DB, error) {
 	var (
 		host   = os.Getenv("DB_HOST")
 		port   = os.Getenv("DB_PORT")
@@ -19,14 +17,18 @@ func DBConnection() {
 
 	pgConn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable", host, port, user, dbname)
 
-	database, err := gorm.Open(postgres.New(postgres.Config{
-		DSN:                  pgConn,
-		PreferSimpleProtocol: true,
-	}), &gorm.Config{})
+	db, err := sql.Open("postgres", pgConn)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
 
+	err = db.Ping()
 	if err != nil {
 		panic(err)
 	}
 
-	DB = database
+	fmt.Println("Successfully connected!")
+
+	return db, nil
 }

@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func (h *Handler) extractBearerToken(header string) (string, error) {
+func (app *Application) extractBearerToken(header string) (string, error) {
 	if header == "" {
 		return "", errors.New("invalid credentials, missing header, or bad header value given")
 	}
@@ -22,7 +22,7 @@ func (h *Handler) extractBearerToken(header string) (string, error) {
 	return jwtToken[1], nil
 }
 
-func (h *Handler) ValidateJWT(jwtToken string) (*jwt.Token, error) {
+func (app *Application) ValidateJWT(jwtToken string) (*jwt.Token, error) {
 	dir, _ := os.Getwd()
 	secret, err := os.ReadFile(dir + "/tls/key.pem")
 	if err != nil {
@@ -44,13 +44,13 @@ func (h *Handler) ValidateJWT(jwtToken string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func (h *Handler) ParseJWTClaims(header string) (uint64, error) {
-	token, err := h.extractBearerToken(header)
+func (app *Application) ParseJWTClaims(header string) (uint64, error) {
+	token, err := app.extractBearerToken(header)
 	if err != nil {
 		return 0, fmt.Errorf("failed to extract bearer token: %v", err)
 	}
 
-	parsedToken, err := h.ValidateJWT(token)
+	parsedToken, err := app.ValidateJWT(token)
 	if err != nil {
 		return 0, fmt.Errorf("failed to validate JWT token: %v", err)
 	}

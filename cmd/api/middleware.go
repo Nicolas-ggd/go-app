@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func (h *Handler) CORSOptions() gin.HandlerFunc {
+func (app *Application) CORSOptions() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -22,15 +22,15 @@ func (h *Handler) CORSOptions() gin.HandlerFunc {
 	}
 }
 
-func (h *Handler) ValidateJWTToken() gin.HandlerFunc {
+func (app *Application) ValidateJWTToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		jwtToken, err := h.extractBearerToken(c.GetHeader("Authorization"))
+		jwtToken, err := app.extractBearerToken(c.GetHeader("Authorization"))
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		token, err := h.ValidateJWT(jwtToken)
+		token, err := app.ValidateJWT(jwtToken)
 		if err != nil || !token.Valid {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			return
@@ -42,22 +42,22 @@ func (h *Handler) ValidateJWTToken() gin.HandlerFunc {
 			return
 		}
 
-		userId, err := h.ParseJWTClaims(c.GetHeader("Authorization"))
+		_, err = app.ParseJWTClaims(c.GetHeader("Authorization"))
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 			return
 		}
 
-		exists, err := h.TokenService.CheckTokenExist(userId)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-			return
-		}
-
-		if !exists {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Token not found"})
-			return
-		}
+		//exists, err := app.TokenService.CheckTokenExist(userId)
+		//if err != nil {
+		//	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		//	return
+		//}
+		//
+		//if !exists {
+		//	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Token not found"})
+		//	return
+		//}
 
 		c.Next()
 	}
