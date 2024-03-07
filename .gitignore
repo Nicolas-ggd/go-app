@@ -2,3 +2,4 @@
 .idea
 tests/http-client.private.env.json
 tls/
+go.sum
