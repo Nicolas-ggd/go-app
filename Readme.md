@@ -26,6 +26,8 @@ This project provides a best practice way to build application using Go.
 
 - When using Migrate CLI we need to pass to database URL. Let's export it to a variable for convenience: `export POSTGRESQL_URL='postgres://username:password@localhost:5432/database_name?sslmode=disable'`
 
+- During migration running if error occurred which tells, `Dirty database version <version>. Fix and force version`. In that case, run command: `migrate -path migrations/ -database postgres://test:test@localhost/dummy?sslmode=disable force <version>`
+
 ## Environment Variables
 
 The following environment variables are required to run the application:
