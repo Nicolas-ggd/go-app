@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"github.com/golang-migrate/migrate/v4"
 	"log"
 	"net/http"
 	"websocket/cmd/api"
@@ -27,7 +27,6 @@ import (
 // @BasePath /v1
 
 func main() {
-	//addr := flag.String("addr", ":7000", "HTTP Network")
 
 	config := NewConfig()
 
@@ -42,7 +41,21 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(database, "<-- database")
+
+	// Create a new migrator instance or reuse an existing one if needed
+	m, err := migrate.New(
+		"file://internal/migrations",
+		db.DSN(),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := m.Up(); err != nil {
+		log.Fatal(err)
+	}
+	defer database.Close()
+
 	_ = models.NewDBWrapper(database)
 
 	WebSocket := websocket.NewWebsocket()
