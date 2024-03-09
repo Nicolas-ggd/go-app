@@ -32,6 +32,16 @@ type TokenRepository struct {
 	DBWrapper
 }
 
+// CreateJWT generates a JSON Web Token (JWT) containing user data.
+//
+// Parameters:
+//
+//	-UserId: The user ID to be included in the JWT claims.
+//
+// Returns:
+//
+//	-The signed JWT string, or an empty string if an error occurs.
+//	-An error if there was a problem generating or signing the JWT.
 func (tr *TokenRepository) CreateJWT(UserId uint64) (string, error) {
 	claims := &jwt.MapClaims{
 		"ExpiresAt": 15000,
