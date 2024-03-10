@@ -29,6 +29,7 @@ type AuthUser struct {
 }
 
 func (r *Repository) InsertUser(user *UserForm) (*User, error) {
+	var usr User
 	hash, err := HashPassword(user.Password)
 	if err != nil {
 		log.Printf("Error generating password hash: %v", err)
@@ -36,26 +37,15 @@ func (r *Repository) InsertUser(user *UserForm) (*User, error) {
 	}
 
 	stmt := `INSERT INTO users (name, email, password)
-	VALUES ($1, $2, $3)`
+	VALUES ($1, $2, $3)
+	RETURNING id, name, email, created_at`
 
-	result, err := r.DB.Exec(stmt, user.Name, user.Email, hash)
+	err = r.DB.QueryRow(stmt, user.Name, user.Email, hash).Scan(&usr.ID, &usr.Email, &usr.Name, &usr.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("fialed to insert user in databse: %v", err)
 	}
 
-	userID, err := result.LastInsertId()
-	if err != nil {
-		log.Printf("Error getting last inserted ID: %v", err)
-		return nil, fmt.Errorf("failed to get last inserted ID: %v", err)
-	}
-
-	u := &User{
-		ID:    uint64(userID), // Convert int64 to int if applicable
-		Name:  user.Name,
-		Email: user.Email,
-	}
-
-	return u, nil
+	return &usr, nil
 }
 
 func (r *Repository) GetByEmail(email string) (*User, error) {

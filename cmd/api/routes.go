@@ -30,7 +30,6 @@ func Routes() *gin.Engine {
 		authRoutes.POST("/signup", app.InsertUserHandler())
 		authRoutes.POST("/signin", app.UserAuthenticationHandler())
 		authRoutes.POST("/logout", app.UserLogout())
-
 	}
 
 	viewRoutes := v1.Group("/view")

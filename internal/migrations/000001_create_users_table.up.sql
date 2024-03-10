@@ -5,5 +5,5 @@ CREATE TABLE IF NOT EXISTS users (
     email text UNIQUE NOT NULL,
     password text NOT NULL,
     updated_at timestamp(0) with time zone NOT NULL DEFAULT NOW(),
-    deleted_at timestamp(0) with time zone NOT NULL
+    deleted_at timestamp(0) with time zone
 )
