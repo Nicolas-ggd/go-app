@@ -5,15 +5,15 @@ import (
 	"fmt"
 )
 
-// DBWrapper provides DB of sql
-type DBWrapper struct {
+// Repository provides DB of sql
+type Repository struct {
 	DB *sql.DB
 }
 
 // NewDBWrapper returns new wrapper with passed db parameters
-func NewDBWrapper(db *sql.DB) *DBWrapper {
+func NewDBWrapper(db *sql.DB) *Repository {
 	fmt.Println(db, "What is db?")
-	return &DBWrapper{
+	return &Repository{
 		DB: db,
 	}
 }

@@ -5,11 +5,13 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"websocket/cmd/api/websocket"
-	"websocket/internal/models"
 )
 
 func Routes() *gin.Engine {
 	router := gin.Default()
+
+	router.LoadHTMLGlob("assets/templates/*")
+	router.Static("/assets", "./assets/static")
 
 	app := &Application{}
 
@@ -19,9 +21,15 @@ func Routes() *gin.Engine {
 
 	authRoutes := v1.Group("/auth")
 	{
-		authRoutes.POST("/signup", app.InsertUserHandler(&Handler[models.UserRepository]{repository: models.UserRepository{}}))
-		authRoutes.POST("/signin", app.UserAuthenticationHandler(&Handler[models.TokenRepository]{repository: models.TokenRepository{}}))
-		authRoutes.POST("/logout", app.UserLogout(&Handler[models.TokenRepository]{repository: models.TokenRepository{}}))
+		authRoutes.POST("/signup", app.InsertUserHandler())
+		authRoutes.POST("/signin", app.UserAuthenticationHandler())
+		authRoutes.POST("/logout", app.UserLogout())
+
+	}
+
+	viewRoutes := v1.Group("/view")
+	{
+		viewRoutes.GET("/", app.HomeView)
 	}
 
 	v1.GET("/ws", websocket.ServeWs(app.Websocket))

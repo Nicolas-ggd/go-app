@@ -18,9 +18,9 @@ import (
 // @Failure 404 {object} models.ErrorResponse "Not Found"
 // @Failure 422 {object} models.ErrorResponse "Error"
 // @Router /auth/signup [post]
-func (app *Application) InsertUserHandler(h *Handler[models.UserRepository]) gin.HandlerFunc {
+func (app *Application) InsertUserHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var userAuth models.AuthUser
+		var userAuth models.UserForm
 
 		err := c.ShouldBind(&userAuth)
 		if err != nil {
@@ -28,9 +28,9 @@ func (app *Application) InsertUserHandler(h *Handler[models.UserRepository]) gin
 			return
 		}
 
-		user, err := h.repository.InsertUser(&userAuth)
+		user, err := app.Repository.InsertUser(&userAuth)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Something went wrong"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
@@ -50,10 +50,9 @@ func (app *Application) InsertUserHandler(h *Handler[models.UserRepository]) gin
 // @Failure 404 {object} models.ErrorResponse "Not Found"
 // @Failure 422 {object} models.ErrorResponse "Error"
 // @Router /auth/signin [post]
-func (app *Application) UserAuthenticationHandler(h *Handler[models.TokenRepository]) gin.HandlerFunc {
+func (app *Application) UserAuthenticationHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var userAuth models.AuthUser
-		userRepo := &models.UserRepository{}
 
 		err := c.ShouldBind(&userAuth)
 		if err != nil {
@@ -61,7 +60,7 @@ func (app *Application) UserAuthenticationHandler(h *Handler[models.TokenReposit
 			return
 		}
 
-		user, err := userRepo.GetByEmail(userAuth.Email)
+		user, err := app.Repository.GetByEmail(userAuth.Email)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found!"})
 			return
@@ -73,7 +72,7 @@ func (app *Application) UserAuthenticationHandler(h *Handler[models.TokenReposit
 			return
 		}
 
-		token, err := h.repository.CreateJWT(user.ID)
+		token, err := app.Repository.CreateJWT(user.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "something went wrong"})
 			return
@@ -96,7 +95,7 @@ func (app *Application) UserAuthenticationHandler(h *Handler[models.TokenReposit
 			return
 		}
 
-		err = h.repository.InsertToken(userToken)
+		err = app.Repository.InsertToken(userToken)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Can't insert token, something went wrong"})
 			return
@@ -116,7 +115,7 @@ func (app *Application) UserAuthenticationHandler(h *Handler[models.TokenReposit
 // @Failure 404 {object} models.ErrorResponse "Not Found"
 // @Failure 422 {object} models.ErrorResponse "Error"
 // @Router /auth/logout [post]
-func (app *Application) UserLogout(h *Handler[models.TokenRepository]) gin.HandlerFunc {
+func (app *Application) UserLogout() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId, err := app.ParseJWTClaims(c.GetHeader("Authorization"))
 		if err != nil {
@@ -124,7 +123,7 @@ func (app *Application) UserLogout(h *Handler[models.TokenRepository]) gin.Handl
 			return
 		}
 
-		err = h.repository.DeleteToken(userId)
+		err = app.Repository.DeleteToken(userId)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return

@@ -3,13 +3,11 @@ package api
 import (
 	"log/slog"
 	"websocket/cmd/api/websocket"
+	"websocket/internal/models"
 )
 
 type Application struct {
-	Websocket *websocket.Websocket
-	Logger    *slog.Logger
-}
-
-type Handler[T interface{}] struct {
-	repository T
+	Websocket  *websocket.Websocket
+	Logger     *slog.Logger
+	Repository models.Repository
 }

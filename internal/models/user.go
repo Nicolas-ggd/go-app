@@ -6,10 +6,6 @@ import (
 	"time"
 )
 
-type UserRepository struct {
-	DBWrapper
-}
-
 type User struct {
 	ID        uint64    `json:"id"`
 	Name      string    `json:"name"`
@@ -21,36 +17,63 @@ type User struct {
 	Token     []*Token  `json:"-"`
 }
 
+type UserForm struct {
+	Name     string `form:"name"`
+	Email    string `form:"email"`
+	Password string `form:"password"`
+}
+
 type AuthUser struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-func (us *UserRepository) InsertUser(user *AuthUser) (*User, error) {
+func (r *Repository) InsertUser(user *UserForm) (*User, error) {
 	hash, err := HashPassword(user.Password)
 	if err != nil {
 		log.Printf("Error generating password hash: %v", err)
 		return nil, fmt.Errorf("failed to generate password hash: %v", err)
 	}
 
-	query := `INSERT INTO users (name, email, password)
-			VALUES ($1, $2, $3)
-			RETURNING id, created_at, name, email`
+	stmt, err := r.DB.Prepare(`
+        INSERT INTO users (name, email, password)
+        VALUES ($1, $2, $3)
+        RETURNING id, created_at, name, email
+    `)
+	if err != nil {
+		log.Printf("Error preparing statement: %v", err)
+		return nil, fmt.Errorf("failed to prepare insert statement: %v", err)
+	}
+	defer stmt.Close()
 
 	u := &User{
+		Name:     user.Name,
 		Email:    user.Email,
 		Password: hash,
 	}
 
-	err = us.DB.QueryRow(query, &u).Scan(&u.ID, &u.CreatedAt, &u.Name, &u.Email)
+	result, err := stmt.Exec(u.Name, u.Email, hash)
 	if err != nil {
 		return nil, fmt.Errorf("fialed to insert user in databse")
+	}
+
+	userID, err := result.LastInsertId()
+	if err != nil {
+		log.Printf("Error getting last inserted ID: %v", err)
+		return nil, fmt.Errorf("failed to get last inserted ID: %v", err)
+	}
+
+	u = &User{
+		ID:       uint64(userID), // Convert int64 to int if applicable
+		Name:     user.Name,
+		Email:    user.Email,
+		Password: hash, // Not recommended to store password in plain text
 	}
 
 	return u, nil
 }
 
-func (us *UserRepository) GetByEmail(email string) (*User, error) {
+func (r *Repository) GetByEmail(email string) (*User, error) {
 	//err := db.DB.Preload("Token").Scopes(EmailScope(email)).First(&us).Error
 	//if err != nil {
 	//	return nil, fmt.Errorf("failed to find user with email: %s", email)
@@ -62,7 +85,7 @@ func (us *UserRepository) GetByEmail(email string) (*User, error) {
     INNER JOIN token ON users.id = token.user_id
     WHERE users.id = $1`
 
-	err := us.DB.QueryRow(query, email).Scan(
+	err := r.DB.QueryRow(query, email).Scan(
 		&user.ID,
 		&user.CreatedAt,
 		&user.Name,

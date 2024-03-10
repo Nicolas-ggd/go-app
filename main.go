@@ -2,13 +2,11 @@ package main
 
 import (
 	"flag"
-	"github.com/golang-migrate/migrate/v4"
 	"log"
 	"net/http"
 	"websocket/cmd/api"
 	"websocket/cmd/api/websocket"
 	"websocket/internal/db"
-	"websocket/internal/models"
 )
 
 // @title Swagger Example API
@@ -43,20 +41,18 @@ func main() {
 	}
 
 	// Create a new migrator instance or reuse an existing one if needed
-	m, err := migrate.New(
-		"file://internal/migrations",
-		db.DSN(),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := m.Up(); err != nil {
-		log.Fatal(err)
-	}
+	//m, err := migrate.New(
+	//	"file://internal/migrations",
+	//	db.DSN(),
+	//)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//
+	//if err := m.Up(); err != nil {
+	//	log.Fatal(err)
+	//}
 	defer database.Close()
-
-	_ = models.NewDBWrapper(database)
 
 	WebSocket := websocket.NewWebsocket()
 

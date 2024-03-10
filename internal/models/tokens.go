@@ -28,10 +28,6 @@ type Token struct {
 	Type   Type   `json:"type"`
 }
 
-type TokenRepository struct {
-	DBWrapper
-}
-
 // CreateJWT generates a JSON Web Token (JWT) containing user data.
 //
 // Parameters:
@@ -42,7 +38,7 @@ type TokenRepository struct {
 //
 //	-The signed JWT string, or an empty string if an error occurs.
 //	-An error if there was a problem generating or signing the JWT.
-func (tr *TokenRepository) CreateJWT(UserId uint64) (string, error) {
+func (r *Repository) CreateJWT(UserId uint64) (string, error) {
 	claims := &jwt.MapClaims{
 		"ExpiresAt": 15000,
 		"user":      UserId,
@@ -64,7 +60,7 @@ func (tr *TokenRepository) CreateJWT(UserId uint64) (string, error) {
 	return ss, nil
 }
 
-func (tr *TokenRepository) InsertToken(token *Token) error {
+func (r *Repository) InsertToken(token *Token) error {
 	//err := db.DB.Create(&Token{UserID: token.UserID, Hash: token.Hash, Type: token.Type}).Error
 	//if err != nil {
 	//	log.Printf("Error creating token: %v", err)
@@ -74,7 +70,7 @@ func (tr *TokenRepository) InsertToken(token *Token) error {
 	VALUES ($1, $2, $3)
 	RETURNING id, hash, user_id, type`
 
-	err := tr.DB.QueryRow(query, &token)
+	err := r.DB.QueryRow(query, &token)
 	if err != nil {
 		log.Printf("Error creating token: %v", err)
 		return fmt.Errorf("failed to creating token: %v", err)
@@ -83,12 +79,12 @@ func (tr *TokenRepository) InsertToken(token *Token) error {
 	return nil
 }
 
-func (tr *TokenRepository) DeleteToken(userId uint64) error {
+func (r *Repository) DeleteToken(userId uint64) error {
 
 	query := `UPDATE user_tokens SET deleted_at = $1
     WHERE id = $2`
 
-	err := tr.DB.QueryRow(query, userId)
+	err := r.DB.QueryRow(query, userId)
 	if err != nil {
 		log.Printf("Error deleting token: %v", err)
 		return fmt.Errorf("failed to delete token: %v", err)
