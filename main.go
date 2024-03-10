@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 	"websocket/cmd/api"
@@ -33,24 +33,21 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = db.ConnectionDB()
-	if err != nil {
-		log.Fatal(err)
-	}
+	database := db.ConnectionDB()
+	defer database.Close()
 
 	//Create a new migrator instance or reuse an existing one if needed
-	m, err := migrate.New(
-		"internal/migrations",
-		db.DSN(),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := m.Up(); err != nil {
-		log.Fatal(err)
-	}
-	//defer database.Close()
+	//m, err := migrate.New(
+	//	"postgres://internal/migrations",
+	//	db.DSN(),
+	//)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//
+	//if err := m.Up(); err != nil {
+	//	log.Fatal(err)
+	//}
 
 	WebSocket := websocket.NewWebsocket()
 

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
+	"log"
 	"os"
 )
 
@@ -18,28 +19,22 @@ var (
 	pgConn = fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable", host, port, user, dbname)
 )
 
-func ConnectionDB() error {
-
+func ConnectionDB() *sql.DB {
 	database, err := sql.Open("postgres", pgConn)
 	if err != nil {
-		return fmt.Errorf("failed to open database connection: %w", err)
+		log.Println(err)
+		return nil
 	}
-
-	// Gracefully close the database connection on panic or program exit
-	defer func() {
-		if err := database.Close(); err != nil {
-			fmt.Printf("Failed to close database connection: %v\n", err)
-		}
-	}()
 
 	err = database.Ping()
 	if err != nil {
-		return fmt.Errorf("failed to ping database: %w", err)
+		log.Println(err)
+		return nil
 	}
 
 	DB = database
 
-	return nil
+	return database
 }
 
 func DSN() string {
