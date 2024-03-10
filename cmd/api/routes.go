@@ -12,9 +12,6 @@ import (
 func Routes() *gin.Engine {
 	router := gin.Default()
 
-	router.LoadHTMLGlob("assets/templates/*")
-	router.Static("/assets", "./assets/static")
-
 	app := &Application{
 		Repository: models.Repository{
 			DB: db.DB,
@@ -30,11 +27,6 @@ func Routes() *gin.Engine {
 		authRoutes.POST("/signup", app.InsertUserHandler())
 		authRoutes.POST("/signin", app.UserAuthenticationHandler())
 		authRoutes.POST("/logout", app.UserLogout())
-	}
-
-	viewRoutes := v1.Group("/view")
-	{
-		viewRoutes.GET("/", app.HomeView)
 	}
 
 	v1.GET("/ws", websocket.ServeWs(app.Websocket))

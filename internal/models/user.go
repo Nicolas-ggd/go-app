@@ -18,9 +18,9 @@ type User struct {
 }
 
 type UserForm struct {
-	Name     string `form:"name"`
-	Email    string `form:"email"`
-	Password string `form:"password"`
+	Name     string `form:"name" binding:"required"`
+	Email    string `form:"email" binding:"required"`
+	Password string `form:"password" binding:"required"`
 }
 
 type AuthUser struct {
