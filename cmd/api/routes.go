@@ -5,6 +5,8 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"websocket/cmd/api/websocket"
+	"websocket/internal/db"
+	"websocket/internal/models"
 )
 
 func Routes() *gin.Engine {
@@ -13,7 +15,11 @@ func Routes() *gin.Engine {
 	router.LoadHTMLGlob("assets/templates/*")
 	router.Static("/assets", "./assets/static")
 
-	app := &Application{}
+	app := &Application{
+		Repository: models.Repository{
+			DB: db.DB,
+		},
+	}
 
 	router.Use(app.CORSOptions())
 

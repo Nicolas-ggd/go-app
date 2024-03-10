@@ -1,7 +1,7 @@
 package main
 
 import (
-	"flag"
+	"github.com/golang-migrate/migrate/v4"
 	"log"
 	"net/http"
 	"websocket/cmd/api"
@@ -33,26 +33,24 @@ func main() {
 		log.Fatal(err)
 	}
 
-	flag.Parse()
-
-	database, err := db.ConnectionDB()
+	err = db.ConnectionDB()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
-	// Create a new migrator instance or reuse an existing one if needed
-	//m, err := migrate.New(
-	//	"file://internal/migrations",
-	//	db.DSN(),
-	//)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//if err := m.Up(); err != nil {
-	//	log.Fatal(err)
-	//}
-	defer database.Close()
+	//Create a new migrator instance or reuse an existing one if needed
+	m, err := migrate.New(
+		"internal/migrations",
+		db.DSN(),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := m.Up(); err != nil {
+		log.Fatal(err)
+	}
+	//defer database.Close()
 
 	WebSocket := websocket.NewWebsocket()
 

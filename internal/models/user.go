@@ -35,26 +35,12 @@ func (r *Repository) InsertUser(user *UserForm) (*User, error) {
 		return nil, fmt.Errorf("failed to generate password hash: %v", err)
 	}
 
-	stmt, err := r.DB.Prepare(`
-        INSERT INTO users (name, email, password)
-        VALUES ($1, $2, $3)
-        RETURNING id, created_at, name, email
-    `)
-	if err != nil {
-		log.Printf("Error preparing statement: %v", err)
-		return nil, fmt.Errorf("failed to prepare insert statement: %v", err)
-	}
-	defer stmt.Close()
+	stmt := `INSERT INTO users (name, email, password)
+	VALUES ($1, $2, $3)`
 
-	u := &User{
-		Name:     user.Name,
-		Email:    user.Email,
-		Password: hash,
-	}
-
-	result, err := stmt.Exec(u.Name, u.Email, hash)
+	result, err := r.DB.Exec(stmt, user.Name, user.Email, hash)
 	if err != nil {
-		return nil, fmt.Errorf("fialed to insert user in databse")
+		return nil, fmt.Errorf("fialed to insert user in databse: %v", err)
 	}
 
 	userID, err := result.LastInsertId()
@@ -63,11 +49,10 @@ func (r *Repository) InsertUser(user *UserForm) (*User, error) {
 		return nil, fmt.Errorf("failed to get last inserted ID: %v", err)
 	}
 
-	u = &User{
-		ID:       uint64(userID), // Convert int64 to int if applicable
-		Name:     user.Name,
-		Email:    user.Email,
-		Password: hash, // Not recommended to store password in plain text
+	u := &User{
+		ID:    uint64(userID), // Convert int64 to int if applicable
+		Name:  user.Name,
+		Email: user.Email,
 	}
 
 	return u, nil
