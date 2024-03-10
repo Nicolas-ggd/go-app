@@ -34,7 +34,6 @@ func (app *Application) InsertUserHandler() gin.HandlerFunc {
 			return
 		}
 
-		c.Redirect(http.StatusOK, "http://localhost:7000/v1/views/home")
 		c.JSON(http.StatusOK, gin.H{"data": &user})
 	}
 }
