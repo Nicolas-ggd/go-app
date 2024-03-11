@@ -45,3 +45,11 @@ POST {{local_host}}/v1/account/recover
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{local_token}}
+
+
+
+### Get profile
+GET {{local_host}}/v1/account/profile
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{local_token}}

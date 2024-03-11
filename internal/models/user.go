@@ -92,3 +92,18 @@ func (r *Repository) RecoverAccount(userId uint64) error {
 
 	return nil
 }
+
+func (r *Repository) GetUserProfile(userId uint64) (*User, error) {
+	var user User
+
+	query := `SELECT id, created_at, name, email FROM users
+	WHERE users.id = $1 AND users.deleted_at IS NULL`
+
+	err := r.DB.QueryRow(query, userId).Scan(&user.ID, &user.CreatedAt, &user.Name, &user.Email)
+	if err != nil {
+		log.Printf("Error get user profile with ID: %v, got error: %v", userId, err)
+		return nil, err
+	}
+
+	return &user, nil
+}

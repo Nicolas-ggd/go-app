@@ -185,3 +185,30 @@ func (app *Application) RecoverUserAccount() gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{"message": "Your account recovered!"})
 	}
 }
+
+// @Tags   Get account information
+// @Summary Get account information
+// @Description Get account information
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} models.User
+// @Failure 401 {object} models.ErrorResponse "Error"
+// @Failure 404 {object} models.ErrorResponse "Not Found"
+// @Failure 422 {object} models.ErrorResponse "Error"
+// @Router /account/profile [get]
+func (app *Application) GetAccount() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userObject := app.GetTokenClaim(c)
+		if userObject == nil {
+			return
+		}
+
+		user, err := app.Repository.GetUserProfile(userObject.UserId)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"data": &user})
+	}
+}
