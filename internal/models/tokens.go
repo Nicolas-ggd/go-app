@@ -28,6 +28,10 @@ type Token struct {
 	Type   Type   `json:"type"`
 }
 
+type TokenClaim struct {
+	UserId uint64 `json:"user_id"`
+}
+
 // CreateJWT generates a JSON Web Token (JWT) containing user data.
 //
 // Parameters:
@@ -38,10 +42,12 @@ type Token struct {
 //
 //	-The signed JWT string, or an empty string if an error occurs.
 //	-An error if there was a problem generating or signing the JWT.
-func (r *Repository) CreateJWT(UserId uint64) (string, error) {
+func (r *Repository) CreateJWT(UserID uint64) (string, error) {
 	claims := &jwt.MapClaims{
 		"ExpiresAt": 15000,
-		"user":      UserId,
+		"user": TokenClaim{
+			UserId: UserID,
+		},
 	}
 
 	dir, _ := os.Getwd()

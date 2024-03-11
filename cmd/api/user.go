@@ -117,13 +117,12 @@ func (app *Application) UserAuthenticationHandler() gin.HandlerFunc {
 // @Router /auth/logout [post]
 func (app *Application) UserLogout() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userId, err := app.ParseJWTClaims(c.GetHeader("Authorization"))
-		if err != nil {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		userObject := app.GetTokenClaim(c)
+		if userObject == nil {
 			return
 		}
 
-		_, err = app.Repository.DeleteToken(userId)
+		_, err := app.Repository.DeleteToken(userObject.UserId)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
@@ -145,13 +144,12 @@ func (app *Application) UserLogout() gin.HandlerFunc {
 // @Router /account/delete [post]
 func (app *Application) DeleteUserAccount() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userId, err := app.ParseJWTClaims(c.GetHeader("Authorization"))
-		if err != nil {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		userObject := app.GetTokenClaim(c)
+		if userObject == nil {
 			return
 		}
 
-		err = app.Repository.DeleteAccount(userId)
+		err := app.Repository.DeleteAccount(userObject.UserId)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
@@ -173,13 +171,12 @@ func (app *Application) DeleteUserAccount() gin.HandlerFunc {
 // @Router /account/recover [post]
 func (app *Application) RecoverUserAccount() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userId, err := app.ParseJWTClaims(c.GetHeader("Authorization"))
-		if err != nil {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		userObject := app.GetTokenClaim(c)
+		if userObject == nil {
 			return
 		}
 
-		err = app.Repository.RecoverAccount(userId)
+		err := app.Repository.RecoverAccount(userObject.UserId)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return

@@ -26,8 +26,11 @@ func Routes() *gin.Engine {
 	{
 		authRoutes.POST("/signup", app.InsertUserHandler())
 		authRoutes.POST("/signin", app.UserAuthenticationHandler())
+		authRoutes.Use(app.validateJWTToken())
 		authRoutes.POST("/logout", app.UserLogout())
 	}
+
+	v1.Use(app.validateJWTToken())
 
 	accountRoutes := v1.Group("/account")
 	{

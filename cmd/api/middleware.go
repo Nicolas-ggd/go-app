@@ -22,9 +22,12 @@ func (app *Application) CORSOptions() gin.HandlerFunc {
 	}
 }
 
-func (app *Application) ValidateJWTToken() gin.HandlerFunc {
+// validateJWTToken use in private routes which check if Authorization header exist or not
+//
+// if token exist it validates provided token  and parse token claims, after that it saves claims in Gin Context
+func (app *Application) validateJWTToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		jwtToken, err := app.extractBearerToken(c.GetHeader("Authorization"))
+		jwtToken, err := app.ExtractBearerToken(c.GetHeader("Authorization"))
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -42,22 +45,13 @@ func (app *Application) ValidateJWTToken() gin.HandlerFunc {
 			return
 		}
 
-		_, err = app.ParseJWTClaims(c.GetHeader("Authorization"))
+		userObj, err := app.ParseJWTClaims(c.GetHeader("Authorization"))
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 			return
 		}
 
-		//exists, err := app.TokenService.CheckTokenExist(userId)
-		//if err != nil {
-		//	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		//	return
-		//}
-		//
-		//if !exists {
-		//	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Token not found"})
-		//	return
-		//}
+		c.Set("user_claims", userObj)
 
 		c.Next()
 	}

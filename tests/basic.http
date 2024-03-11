@@ -4,8 +4,8 @@ Accept: application/json
 Content-Type: application/json
 
 {
-  "name": "mexicano",
-  "email": "mucho@gmail.com",
+  "name": "moob deep",
+  "email": "survivaloffittest@gmail.com",
   "password": "lothbrook11"
 }
 
@@ -17,7 +17,7 @@ Accept: application/json
 Content-Type: application/json
 
 {
-  "email": "mucho@gmail.com",
+  "email": "survivaloffittest@gmail.com",
   "password": "lothbrook11"
 }
 
@@ -40,7 +40,7 @@ Authorization: Bearer {{local_token}}
 
 
 
-### Delete account
+### Recover account
 POST {{local_host}}/v1/account/recover
 Accept: application/json
 Content-Type: application/json
