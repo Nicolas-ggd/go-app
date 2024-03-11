@@ -49,28 +49,21 @@ func (r *Repository) InsertUser(user *UserForm) (*User, error) {
 }
 
 func (r *Repository) GetByEmail(email string) (*User, error) {
-	//err := db.DB.Preload("Token").Scopes(EmailScope(email)).First(&us).Error
-	//if err != nil {
-	//	return nil, fmt.Errorf("failed to find user with email: %s", email)
-	//}
-	//
-	//return us, nil
 	var user User
-	query := `SELECT id, created_at, name, email FROM users
-    INNER JOIN token ON users.id = token.user_id
-    WHERE users.id = $1`
+	query := `SELECT id, created_at, name, email, password FROM users
+    WHERE users.email = $1`
 
 	err := r.DB.QueryRow(query, email).Scan(
 		&user.ID,
 		&user.CreatedAt,
 		&user.Name,
 		&user.Email,
-		&user.Token,
+		&user.Password,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find user with email: %s", email)
 	}
-
+	fmt.Println(user)
 	return &user, nil
 }
 

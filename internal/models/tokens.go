@@ -61,19 +61,20 @@ func (r *Repository) CreateJWT(UserId uint64) (string, error) {
 }
 
 func (r *Repository) InsertToken(token *Token) error {
+	var tkn Token
 	//err := db.DB.Create(&Token{UserID: token.UserID, Hash: token.Hash, Type: token.Type}).Error
 	//if err != nil {
 	//	log.Printf("Error creating token: %v", err)
 	//	return fmt.Errorf("failed to creating token: %v", err)
 	//}
-	query := `INSERT INTO user_tokens (hash, user_id, type)
+	query := `INSERT INTO users_tokens (hash, user_id, type)
 	VALUES ($1, $2, $3)
-	RETURNING id, hash, user_id, type`
+	RETURNING hash`
 
-	err := r.DB.QueryRow(query, &token)
+	err := r.DB.QueryRow(query, token.Hash, token.UserID, token.Type).Scan(&tkn.Hash)
 	if err != nil {
 		log.Printf("Error creating token: %v", err)
-		return fmt.Errorf("failed to creating token: %v", err)
+		return fmt.Errorf("failed to create token: %v", err)
 	}
 
 	return nil

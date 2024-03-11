@@ -62,7 +62,7 @@ func (app *Application) UserAuthenticationHandler() gin.HandlerFunc {
 
 		user, err := app.Repository.GetByEmail(userAuth.Email)
 		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Record not found!"})
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
 
@@ -78,7 +78,7 @@ func (app *Application) UserAuthenticationHandler() gin.HandlerFunc {
 			return
 		}
 
-		userToken := &models.Token{
+		userToken := models.Token{
 			UserID: user.ID,
 			Hash:   []byte(token),
 			Type:   models.Auth,
@@ -95,9 +95,9 @@ func (app *Application) UserAuthenticationHandler() gin.HandlerFunc {
 			return
 		}
 
-		err = app.Repository.InsertToken(userToken)
+		err = app.Repository.InsertToken(&userToken)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Can't insert token, something went wrong"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
