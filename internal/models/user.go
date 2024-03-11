@@ -51,7 +51,7 @@ func (r *Repository) InsertUser(user *UserForm) (*User, error) {
 func (r *Repository) GetByEmail(email string) (*User, error) {
 	var user User
 	query := `SELECT id, created_at, name, email, password FROM users
-    WHERE users.email = $1`
+    WHERE users.email = $1 AND users.deleted_at IS  NULL`
 
 	err := r.DB.QueryRow(query, email).Scan(
 		&user.ID,
@@ -67,12 +67,28 @@ func (r *Repository) GetByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
-//func (us *UserRepository) CheckUserIsExist(id uint64) (bool, error) {
-//	var count int64
-//
-//	if err := db.DB.Model(&User{}).Scopes(IdScope(id)).Count(&count).Error; err != nil {
-//		return false, err
-//	}
-//
-//	return count > 0, nil
-//}
+func (r *Repository) DeleteAccount(userId uint64) error {
+	query := `UPDATE users SET deleted_at = $1
+	WHERE users.id = $2`
+
+	_, err := r.DB.Exec(query, time.Now(), userId)
+	if err != nil {
+		log.Printf("failed to delete user account: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repository) RecoverAccount(userId uint64) error {
+	query := `UPDATE users SET deleted_at = NULL
+	WHERE users.id = $1`
+
+	_, err := r.DB.Exec(query, userId)
+	if err != nil {
+		log.Printf("failed to delete user account: %v", err)
+		return err
+	}
+
+	return nil
+}

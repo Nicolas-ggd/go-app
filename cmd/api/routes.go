@@ -29,6 +29,12 @@ func Routes() *gin.Engine {
 		authRoutes.POST("/logout", app.UserLogout())
 	}
 
+	accountRoutes := v1.Group("/account")
+	{
+		accountRoutes.POST("/delete", app.DeleteUserAccount())
+		accountRoutes.POST("/recover", app.RecoverUserAccount())
+	}
+
 	v1.GET("/ws", websocket.ServeWs(app.Websocket))
 
 	url := ginSwagger.URL("http://localhost:7000/swagger/doc.json")

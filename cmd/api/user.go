@@ -129,6 +129,62 @@ func (app *Application) UserLogout() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"message": "Login successfully!"})
+		c.JSON(http.StatusOK, gin.H{"message": "Logout successfully!"})
+	}
+}
+
+// @Tags   Delete user account
+// @Summary Delete user account with bearer token
+// @Description User account delete
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} string	"ok"
+// @Failure 401 {object} models.ErrorResponse "Error"
+// @Failure 404 {object} models.ErrorResponse "Not Found"
+// @Failure 422 {object} models.ErrorResponse "Error"
+// @Router /account/delete [post]
+func (app *Application) DeleteUserAccount() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId, err := app.ParseJWTClaims(c.GetHeader("Authorization"))
+		if err != nil {
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+			return
+		}
+
+		err = app.Repository.DeleteAccount(userId)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "Account deleted successfully!"})
+	}
+}
+
+// @Tags   Recover user account
+// @Summary Recover user account with bearer token
+// @Description User account recover
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} string	"ok"
+// @Failure 401 {object} models.ErrorResponse "Error"
+// @Failure 404 {object} models.ErrorResponse "Not Found"
+// @Failure 422 {object} models.ErrorResponse "Error"
+// @Router /account/recover [post]
+func (app *Application) RecoverUserAccount() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId, err := app.ParseJWTClaims(c.GetHeader("Authorization"))
+		if err != nil {
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+			return
+		}
+
+		err = app.Repository.RecoverAccount(userId)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "Your account recovered!"})
 	}
 }

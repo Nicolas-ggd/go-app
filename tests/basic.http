@@ -31,3 +31,17 @@ Authorization: Bearer {{local_token}}
 
 
 
+### Delete account
+POST {{local_host}}/v1/account/delete
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{local_token}}
+
+
+
+
+### Delete account
+POST {{local_host}}/v1/account/recover
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{local_token}}
