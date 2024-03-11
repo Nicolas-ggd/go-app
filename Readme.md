@@ -28,6 +28,12 @@ This project provides a best practice way to build application using Go.
 
 - During migration running if error occurred which tells, `Dirty database version <version>. Fix and force version`. In that case, run command: `migrate -path migrations/ -database postgres://test:test@localhost/dummy?sslmode=disable force <version>`
 
+## Drop migration
+
+**Note:** Please note that before drop migration you need to export convenience variable.
+
+- Drop all migration using command: `migrate -database ${POSTGRESQL_URL} -path db/migrations down`
+
 ## Environment Variables
 
 The following environment variables are required to run the application:
