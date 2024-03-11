@@ -26,6 +26,7 @@ import (
 
 func main() {
 
+	// Server starting on 7000 port as a default, you can change it to call NewConfig.WithListenerAddr method and passed port
 	config := NewConfig()
 
 	server, err := NewServer(config)
