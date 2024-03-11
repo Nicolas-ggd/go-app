@@ -62,11 +62,7 @@ func (r *Repository) CreateJWT(UserId uint64) (string, error) {
 
 func (r *Repository) InsertToken(token *Token) error {
 	var tkn Token
-	//err := db.DB.Create(&Token{UserID: token.UserID, Hash: token.Hash, Type: token.Type}).Error
-	//if err != nil {
-	//	log.Printf("Error creating token: %v", err)
-	//	return fmt.Errorf("failed to creating token: %v", err)
-	//}
+
 	query := `INSERT INTO users_tokens (hash, user_id, type)
 	VALUES ($1, $2, $3)
 	RETURNING hash`
@@ -80,26 +76,17 @@ func (r *Repository) InsertToken(token *Token) error {
 	return nil
 }
 
-func (r *Repository) DeleteToken(userId uint64) error {
+func (r *Repository) DeleteToken(userId uint64) (bool, error) {
+	query := `DELETE FROM users_tokens WHERE user_id = $1`
 
-	query := `UPDATE user_tokens SET deleted_at = $1
-    WHERE id = $2`
+	res, err := r.DB.Exec(query, userId)
+	if err == nil {
+		_, err := res.RowsAffected()
+		if err == nil {
+			return true, nil
+		}
 
-	err := r.DB.QueryRow(query, userId)
-	if err != nil {
-		log.Printf("Error deleting token: %v", err)
-		return fmt.Errorf("failed to delete token: %v", err)
 	}
 
-	return nil
+	return false, nil
 }
-
-//func (tr *TokenRepository) CheckTokenExist(id uint64) (bool, error) {
-//	var count int64
-//
-//	if err := db.DB.Model(&Token{}).Scopes(UserIdScope(id)).Count(&count).Error; err != nil {
-//		return false, err
-//	}
-//
-//	return count > 0, nil
-//}

@@ -123,7 +123,7 @@ func (app *Application) UserLogout() gin.HandlerFunc {
 			return
 		}
 
-		err = app.Repository.DeleteToken(userId)
+		_, err = app.Repository.DeleteToken(userId)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return

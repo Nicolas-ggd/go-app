@@ -63,7 +63,7 @@ func (r *Repository) GetByEmail(email string) (*User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to find user with email: %s", email)
 	}
-	fmt.Println(user)
+
 	return &user, nil
 }
 
