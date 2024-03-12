@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"os"
 )
@@ -35,6 +36,24 @@ func ConnectionDB() *sql.DB {
 	DB = database
 
 	return database
+}
+
+func TestDatabaseConnection() error {
+	// Open a database connection
+	db, err := sql.Open("sqlite3", ":memory:?cache=shared")
+	if err != nil {
+		return err
+	}
+
+	// Test the connection
+	if err = db.Ping(); err != nil {
+		return err
+	}
+
+	// Assign the database connection to the global variable
+	DB = db
+
+	return nil
 }
 
 func DSN() string {
