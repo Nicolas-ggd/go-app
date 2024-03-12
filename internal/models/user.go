@@ -11,8 +11,8 @@ type User struct {
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
 	Password  string    `json:"-"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"-"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	DeletedAt time.Time `json:"-"`
 	Token     []*Token  `json:"-"`
 }
@@ -106,4 +106,18 @@ func (r *Repository) GetUserProfile(userId uint64) (*User, error) {
 	}
 
 	return &user, nil
+}
+
+func (r *Repository) UpdateProfile(userId uint64, user *User) (*User, error) {
+	var u User
+
+	query := `UPDATE users SET name = $2, email = $3, updated_at = $4 WHERE users.id = $1 AND users.deleted_at IS NULL RETURNING id, name, email, updated_at`
+
+	err := r.DB.QueryRow(query, userId, user.Name, user.Email, time.Now()).Scan(&u.ID, &u.Name, &u.Email, &u.UpdatedAt)
+	if err != nil {
+		log.Printf("Can't update user profile with ID %v, got error: %v", userId, err)
+		return nil, err
+	}
+
+	return &u, nil
 }

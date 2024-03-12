@@ -34,9 +34,10 @@ func Routes() *gin.Engine {
 
 	accountRoutes := v1.Group("/account")
 	{
+		accountRoutes.GET("/profile", app.GetAccount())
+		accountRoutes.PATCH("/profile/update", app.UpdateProfileHandler())
 		accountRoutes.POST("/delete", app.DeleteUserAccount())
 		accountRoutes.POST("/recover", app.RecoverUserAccount())
-		accountRoutes.GET("/profile", app.GetAccount())
 	}
 
 	v1.GET("/ws", websocket.ServeWs(app.Websocket))

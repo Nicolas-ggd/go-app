@@ -212,3 +212,28 @@ func (app *Application) GetAccount() gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{"data": &user})
 	}
 }
+
+func (app *Application) UpdateProfileHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var u models.User
+
+		userObject := app.GetTokenClaim(c)
+		if userObject == nil {
+			return
+		}
+
+		err := c.ShouldBind(&u)
+		if err != nil {
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+			return
+		}
+
+		user, err := app.Repository.UpdateProfile(userObject.UserId, &u)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, &user)
+	}
+}

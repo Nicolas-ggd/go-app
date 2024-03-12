@@ -53,3 +53,17 @@ GET {{local_host}}/v1/account/profile
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{local_token}}
+
+
+
+
+### Update profile
+PATCH {{local_host}}/v1/account/profile/update
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{local_token}}
+
+{
+  "name": "Ninja",
+  "email": "ufc@gmail.com"
+}
