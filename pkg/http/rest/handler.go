@@ -1,13 +1,13 @@
-package api
+package http
 
 import (
 	"log/slog"
-	"websocket/cmd/api/websocket"
 	"websocket/internal/models"
+	"websocket/pkg/http/ws"
 )
 
-type Application struct {
-	Websocket  *websocket.Websocket
+type Handler struct {
+	Websocket  *ws.Websocket
 	Logger     *slog.Logger
 	Repository models.Repository
 }

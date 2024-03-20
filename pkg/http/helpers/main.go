@@ -1,4 +1,4 @@
-package api
+package helpers
 
 import (
 	"encoding/json"
@@ -17,7 +17,7 @@ import (
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
 
 // ExtractBearerToken func extract token from Authorization header
-func (app *Application) ExtractBearerToken(header string) (string, error) {
+func ExtractBearerToken(header string) (string, error) {
 	if header == "" {
 		return "", errors.New("invalid credentials, missing header, or bad header value given")
 	}
@@ -40,7 +40,7 @@ func (app *Application) ExtractBearerToken(header string) (string, error) {
 //
 //	-Pointer of jwt.Token
 //	-An error if given jwt token is not a signed with HMAC method, or it used a bad algorithm
-func (app *Application) ValidateJWT(jwtToken string) (*jwt.Token, error) {
+func ValidateJWT(jwtToken string) (*jwt.Token, error) {
 	dir, _ := os.Getwd()
 	// keyPath := "/home/yamato/Documents/user-service"
 	secret, err := os.ReadFile(dir + "/tls/key.pem")
@@ -64,13 +64,13 @@ func (app *Application) ValidateJWT(jwtToken string) (*jwt.Token, error) {
 }
 
 // ParseJWTClaims func parse claims object
-func (app *Application) ParseJWTClaims(header string) (*models.TokenClaim, error) {
-	token, err := app.ExtractBearerToken(header)
+func ParseJWTClaims(header string) (*models.TokenClaim, error) {
+	token, err := ExtractBearerToken(header)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract bearer token: %v", err)
 	}
 
-	parsedToken, err := app.ValidateJWT(token)
+	parsedToken, err := ValidateJWT(token)
 	if err != nil {
 		return nil, fmt.Errorf("failed to validate JWT token: %v", err)
 	}
@@ -96,7 +96,7 @@ func (app *Application) ParseJWTClaims(header string) (*models.TokenClaim, error
 }
 
 // ParseObjectClaims func parse provided claims and get value according to passed parameter
-func (app *Application) ParseObjectClaims(claims map[string]interface{}, key string) (int64, error) {
+func ParseObjectClaims(claims map[string]interface{}, key string) (int64, error) {
 	valueFloat, ok := claims[key].(float64)
 	if !ok {
 		return 0, fmt.Errorf("value for key '%s' is not a valid float64", key)
@@ -116,7 +116,7 @@ func (app *Application) ParseObjectClaims(claims map[string]interface{}, key str
 // Returns:
 //
 //	-Generated random string
-func (app *Application) GenerateRandomString(n int) string {
+func GenerateRandomString(n int) string {
 	b := make([]rune, n)
 	for i := range b {
 		b[i] = letterRunes[rand.Intn(len(letterRunes))]
@@ -134,7 +134,7 @@ func (app *Application) GenerateRandomString(n int) string {
 // Returns:
 //
 //	-TokenClaim: model of TokenClaim
-func (app *Application) GetTokenClaim(c *gin.Context) *models.TokenClaim {
+func GetTokenClaim(c *gin.Context) *models.TokenClaim {
 	userObj, ok := c.Keys["user_claims"].(*models.TokenClaim)
 
 	if !ok {

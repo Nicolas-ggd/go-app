@@ -1,12 +1,13 @@
-package api
+package middleware
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"net/http"
+	"websocket/pkg/http/helpers"
 )
 
-func (app *Application) CORSOptions() gin.HandlerFunc {
+func CORSOptions() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -25,15 +26,15 @@ func (app *Application) CORSOptions() gin.HandlerFunc {
 // validateJWTToken use in private routes which check if Authorization header exist or not
 //
 // if token exist it validates provided token  and parse token claims, after that it saves claims in Gin Context
-func (app *Application) validateJWTToken() gin.HandlerFunc {
+func validateJWTToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		jwtToken, err := app.ExtractBearerToken(c.GetHeader("Authorization"))
+		jwtToken, err := helpers.ExtractBearerToken(c.GetHeader("Authorization"))
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		token, err := app.ValidateJWT(jwtToken)
+		token, err := helpers.ValidateJWT(jwtToken)
 		if err != nil || !token.Valid {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			return
@@ -45,7 +46,7 @@ func (app *Application) validateJWTToken() gin.HandlerFunc {
 			return
 		}
 
-		userObj, err := app.ParseJWTClaims(c.GetHeader("Authorization"))
+		userObj, err := helpers.ParseJWTClaims(c.GetHeader("Authorization"))
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 			return
