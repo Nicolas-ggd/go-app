@@ -1,3 +1,5 @@
+// Package helpers - helpers package is a http package helper, it contains different helper functions
+// which is used to improve working in http package.
 package helpers
 
 import (

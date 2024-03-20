@@ -1,3 +1,6 @@
+// Package middleware - package provides middleware functions for use with the Gin web framework.
+// Middleware functions are essentially interceptor functions that execute code before and/or after a request handler in Gin.
+// They offer a way to perform common tasks or checks across multiple routes in a centralized and modular manner.
 package middleware
 
 import (
