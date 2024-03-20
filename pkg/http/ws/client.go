@@ -2,7 +2,7 @@ package ws
 
 import (
 	"bytes"
-	"github.com/gin-gonic/gin"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -28,37 +28,47 @@ var (
 	space   = []byte{' '}
 )
 
-var upgrader = websocket.Upgrader{
+// initialize websocket upgrader
+var ConnectionUpgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
+	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
 type Client struct {
-	ws *Websocket
-
-	conn *websocket.Conn
-
-	send chan []byte
+	Ws       *Websocket
+	Conn     *websocket.Conn
+	ClientId string
+	Send     chan []byte
 }
 
-// readPump pumps messages from the websocket connection to the websocket.
+// ReadPump pumps messages from the websocket connection to the websocket.
 //
 // The application runs readPump in a per-connection goroutine. The application
 // ensures that there is at most one reader on a connection by executing all
 // reads from this goroutine.
-func (c *Client) readPump() {
+func (c *Client) ReadPump() {
 	defer func() {
-		c.ws.Unregister <- c
-		c.conn.Close()
+		c.Ws.Unregister <- c
 	}()
-	c.conn.SetReadLimit(maxMessageSize)
-	c.conn.SetReadDeadline(time.Now().Add(pongWait))
-	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	// set rate limit which use maximum message size to read message
+	c.Conn.SetReadLimit(maxMessageSize)
+	// set readDead line time by using time.Now using additional pongWait
+	//  allowed to read the next pong message from the peer.
+	if err := c.Conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+		return
+	}
+	// set pong handler which use readDeadline setter
+	c.Conn.SetPongHandler(func(string) error {
+		if err := c.Conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+			return err
+		}
+		return nil
+	})
+
 	for {
-		_, message, err := c.conn.ReadMessage()
+		_, message, err := c.Conn.ReadMessage()
+		fmt.Println(message, "message")
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
@@ -70,69 +80,68 @@ func (c *Client) readPump() {
 	}
 }
 
-// writePump pumps messages from the hub to the websocket connection.
+// WritePump pumps messages from the hub to the websocket connection.
 //
 // A goroutine running writePump is started for each connection. The
 // application ensures that there is at most one writer to a connection by
 // executing all writes from this goroutine.
-func (c *Client) writePump() {
+func (c *Client) WritePump() {
+	// Send pings to peer with this period.
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
-		c.conn.Close()
+		if err := c.Conn.Close(); err != nil {
+			return
+		}
 	}()
+
 	for {
 		select {
-		case message, ok := <-c.send:
-			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+		// receive message from the channel
+		case message, ok := <-c.Send:
+			if err := c.Conn.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
+				return
+			}
 			if !ok {
-				// The hub closed the channel.
-				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				// close channel if error occurred
+				if err := c.Conn.WriteMessage(websocket.CloseMessage, []byte{}); err != nil {
+					return
+				}
 				return
 			}
 
-			w, err := c.conn.NextWriter(websocket.TextMessage)
+			// write message for websocket
+			w, err := c.Conn.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
 			}
-			w.Write(message)
-
-			// Add queued chat messages to the current websocket message.
-			n := len(c.send)
-			for i := 0; i < n; i++ {
-				w.Write(newline)
-				w.Write(<-c.send)
+			// write message
+			_, err = w.Write(message)
+			if err != nil {
+				return
 			}
 
+			// Add queued chat messages to the current websocket message.
+			n := len(c.Send)
+			for i := 0; i < n; i++ {
+				w.Write(newline)
+				_, err = w.Write(<-c.Send)
+				if err != nil {
+					return
+				}
+			}
+			// close websocket
 			if err := w.Close(); err != nil {
 				return
 			}
-
 		case <-ticker.C:
-			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+			if err := c.Conn.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
+				return
+			}
+			err := c.Conn.WriteMessage(websocket.PingMessage, nil)
+			if err != nil {
 				return
 			}
 		}
 	}
-}
-
-// ServeWs handles websocket requests from the peer.
-func ServeWs(ws *Websocket) gin.HandlerFunc {
-	fn := func(c *gin.Context) {
-		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-		if err != nil {
-			log.Println(err)
-		}
-
-		client := &Client{ws: ws, conn: conn, send: make(chan []byte, 256)}
-		client.ws.Register <- client
-
-		// Allow collection of memory referenced by the caller by doing all work in
-		// new goroutines.
-		go client.writePump()
-		go client.readPump()
-	}
-
-	return fn
 }

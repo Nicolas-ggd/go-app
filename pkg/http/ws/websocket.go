@@ -11,7 +11,7 @@ type Message struct {
 }
 
 type Websocket struct {
-	Clients map[*Client]bool
+	Clients map[string]*Client
 
 	Broadcast chan []byte
 
@@ -22,7 +22,7 @@ type Websocket struct {
 
 func NewWebsocket() *Websocket {
 	return &Websocket{
-		Clients:    make(map[*Client]bool),
+		Clients:    make(map[string]*Client),
 		Broadcast:  make(chan []byte),
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
@@ -30,34 +30,39 @@ func NewWebsocket() *Websocket {
 }
 
 func (ws *Websocket) Run() {
-
 	for {
 		select {
+		// handle register client case
 		case client := <-ws.Register:
-			ws.Clients[client] = true
-
+			ws.Clients[client.ClientId] = client
+			fmt.Println(client.ClientId, "<--- Register client id")
+			// send default message from ws
 			packet := Message{
 				Event: "symbols",
 				Data:  "Hello from socket",
 			}
 
+			// marshal packet and send in to the channel
 			symbolByte, _ := json.Marshal(packet)
-			client.send <- symbolByte
+			client.Send <- symbolByte
 
+		// unregister client case
 		case client := <-ws.Unregister:
-			fmt.Println("unregistering client")
-			if _, ok := ws.Clients[client]; ok {
-				delete(ws.Clients, client)
-				close(client.send)
+			if _, ok := ws.Clients[client.ClientId]; ok {
+				// delete client
+				delete(ws.Clients, client.ClientId)
+				close(client.Send)
 			}
+
+		// handle case to receiving broadcast
 		case message := <-ws.Broadcast:
-			for client := range ws.Clients {
+			for _, client := range ws.Clients {
 				select {
-				case client.send <- message:
+				case client.Send <- message:
 					fmt.Println("broadcasting client.send ")
 				default:
-					close(client.send)
-					delete(ws.Clients, client)
+					close(client.Send)
+					delete(ws.Clients, client.ClientId)
 				}
 			}
 		}
