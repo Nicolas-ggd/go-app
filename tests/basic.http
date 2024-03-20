@@ -5,7 +5,7 @@ Content-Type: application/json
 
 {
   "name": "moob deep",
-  "email": "mobflow@gmail.com",
+  "email": "survival@gmail.com",
   "password": "lothbrook11"
 }
 
@@ -17,7 +17,7 @@ Accept: application/json
 Content-Type: application/json
 
 {
-  "email": "mobflow@gmail.com",
+  "email": "survival@gmail.com",
   "password": "lothbrook11"
 }
 
@@ -65,5 +65,5 @@ Authorization: Bearer {{local_token}}
 
 {
   "name": "Ninja",
-  "email": "ufc@gmail.com"
+  "email": "jonjones@gmail.com"
 }
