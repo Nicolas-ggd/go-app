@@ -1,30 +1,30 @@
 ### User SignUp
-POST {{local_host}}/v1/auth/signup
+POST {{local_host}}/api/account/register
 Accept: application/json
 Content-Type: application/json
 
 {
   "name": "moob deep",
-  "email": "survivaloffittest@gmail.com",
+  "email": "mobflow@gmail.com",
   "password": "lothbrook11"
 }
 
 
 
 ### User SignIn
-POST {{local_host}}/v1/auth/signin
+POST {{local_host}}/api/account/login
 Accept: application/json
 Content-Type: application/json
 
 {
-  "email": "survivaloffittest@gmail.com",
+  "email": "mobflow@gmail.com",
   "password": "lothbrook11"
 }
 
 
 
 ### User Logout
-POST {{local_host}}/v1/auth/logout
+POST {{local_host}}/api/account/logout
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{local_token}}
@@ -32,7 +32,7 @@ Authorization: Bearer {{local_token}}
 
 
 ### Delete account
-POST {{local_host}}/v1/account/delete
+POST {{local_host}}/api/account/delete
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{local_token}}
@@ -41,7 +41,7 @@ Authorization: Bearer {{local_token}}
 
 
 ### Recover account
-POST {{local_host}}/v1/account/recover
+POST {{local_host}}/api/account/recover
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{local_token}}
@@ -58,7 +58,7 @@ Authorization: Bearer {{local_token}}
 
 
 ### Update profile
-PATCH {{local_host}}/v1/account/profile/update
+PATCH {{local_host}}/api/account/profile/update
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{local_token}}

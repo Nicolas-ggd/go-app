@@ -13,13 +13,13 @@ func (h *Handler) RegisterHandler() gin.HandlerFunc {
 
 		err := c.ShouldBind(&userAuth)
 		if err != nil {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "Invalid request data, missing request fields!"})
+			h.ValidateError(err, c)
 			return
 		}
 
 		user, err := h.Repository.InsertUser(&userAuth)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			h.GenerateResponse(http.StatusInternalServerError, err.Error(), err, c)
 			return
 		}
 
@@ -33,25 +33,25 @@ func (h *Handler) LoginHandler() gin.HandlerFunc {
 
 		err := c.ShouldBind(&userAuth)
 		if err != nil {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "Invalid request data, missing request fields!"})
+			h.ValidateError(err, c)
 			return
 		}
 
 		user, err := h.Repository.GetByEmail(userAuth.Email)
 		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			h.GenerateResponse(http.StatusNotFound, err.Error(), err, c)
 			return
 		}
 
 		err = models.CompareHashAndPasswordBcrypt(user.Password, userAuth.Password)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
+			h.GenerateResponse(http.StatusUnauthorized, "Invalid email or password", err, c)
 			return
 		}
 
 		token, err := h.Repository.CreateJWT(user.ID)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "something went wrong"})
+			h.GenerateResponse(http.StatusInternalServerError, err.Error(), err, c)
 			return
 		}
 
@@ -74,7 +74,7 @@ func (h *Handler) LoginHandler() gin.HandlerFunc {
 
 		err = h.Repository.InsertToken(&userToken)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			h.GenerateResponse(http.StatusInternalServerError, err.Error(), err, c)
 			return
 		}
 
@@ -91,7 +91,7 @@ func (h *Handler) LogoutHandler() gin.HandlerFunc {
 
 		_, err := h.Repository.DeleteToken(userObject.UserId)
 		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			h.GenerateResponse(http.StatusNotFound, err.Error(), err, c)
 			return
 		}
 
@@ -108,7 +108,7 @@ func (h *Handler) DeleteAccount() gin.HandlerFunc {
 
 		err := h.Repository.DeleteAccount(userObject.UserId)
 		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			h.GenerateResponse(http.StatusNotFound, err.Error(), err, c)
 			return
 		}
 
@@ -125,7 +125,7 @@ func (h *Handler) RecoverAccount() gin.HandlerFunc {
 
 		err := h.Repository.RecoverAccount(userObject.UserId)
 		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			h.GenerateResponse(http.StatusNotFound, err.Error(), err, c)
 			return
 		}
 
@@ -142,7 +142,7 @@ func (h *Handler) GetAccountInformation() gin.HandlerFunc {
 
 		user, err := h.Repository.GetUserProfile(userObject.UserId)
 		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			h.GenerateResponse(http.StatusNotFound, err.Error(), err, c)
 			return
 		}
 
@@ -161,13 +161,13 @@ func (h *Handler) UpdateProfileHandler() gin.HandlerFunc {
 
 		err := c.ShouldBind(&u)
 		if err != nil {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+			h.ValidateError(err, c)
 			return
 		}
 
 		user, err := h.Repository.UpdateProfile(userObject.UserId, &u)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			h.GenerateResponse(http.StatusInternalServerError, err.Error(), err, c)
 			return
 		}
 

@@ -24,8 +24,8 @@ type UserForm struct {
 }
 
 type AuthUser struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 func (r *Repository) InsertUser(user *UserForm) (*User, error) {
