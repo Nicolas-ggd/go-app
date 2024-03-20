@@ -12,6 +12,7 @@ import (
 
 func ServeApp() {
 	router := gin.Default()
+	gin.SetMode(gin.TestMode)
 
 	router.Use(middleware.CORSOptions())
 
