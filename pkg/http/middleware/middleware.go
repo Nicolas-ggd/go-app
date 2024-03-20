@@ -26,7 +26,7 @@ func CORSOptions() gin.HandlerFunc {
 // validateJWTToken use in private routes which check if Authorization header exist or not
 //
 // if token exist it validates provided token  and parse token claims, after that it saves claims in Gin Context
-func validateJWTToken() gin.HandlerFunc {
+func ValidateJWTToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		jwtToken, err := helpers.ExtractBearerToken(c.GetHeader("Authorization"))
 		if err != nil {
