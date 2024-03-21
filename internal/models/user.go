@@ -15,6 +15,7 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	DeletedAt time.Time `json:"-"`
 	Token     []*Token  `json:"-"`
+	IBank     []*IBank  `json:"bank_account"`
 }
 
 type UserForm struct {
