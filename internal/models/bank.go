@@ -1,9 +1,7 @@
 package models
 
-type IBank struct {
-	ID      uint64 `json:"id"`
-	Name    string `json:"name"`
-	Balance uint64 `json:"balance"`
-	Fees    uint64 `json:"fees"`
-	UserID  uint64 `json:"user_id"`
+type IBankAccount interface {
+	GetBalance(userId uint64) uint64
+	Deposit(amount uint64)
+	Withdraw(amount uint64) error
 }
